@@ -4,14 +4,16 @@ import jwt from "jsonwebtoken"
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { middleware } from "./middleware";
 import {CreateUserSchema ,signupSchema , RoomSchema} from "@repo/common/types"
+import {prismaClient} from "@repo/db/client"
+import { User } from "../../../packages/db/src/generated/prisma";
 
 
 const app = express();
 
-app.post("/signup" , (req,res) => {
+app.post("/signup" , async (req,res) => {
 
-    const data = CreateUserSchema.safeParse(req.body);
-    if(!data.success){
+    const parsedData = CreateUserSchema.safeParse(req.body);
+    if(!parsedData.success){
          res.json({
             message:"Incorrect Input"
         })
@@ -20,6 +22,15 @@ app.post("/signup" , (req,res) => {
     res.json({
         userId :"123466"
     })
+
+   const user = await prismaClient.user.create({
+  data:{
+    email:parsedData.data?.username,
+    password:parsedData.data?.password,
+    username:parsedData.data?.name
+
+  }
+   })
 
 
 
