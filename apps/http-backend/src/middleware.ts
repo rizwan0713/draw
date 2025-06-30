@@ -10,7 +10,8 @@ const decoded = jwt.verify(token,JWT_SECRET);
 
 if(decoded){
     //@ts-ignore
-   req.userId = decoded.userId
+   req.userId = decoded.userId;
+   next();
 }
 else {
     res.status(403).json({

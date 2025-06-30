@@ -1,14 +1,19 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { middleware } from "./middleware";
 import { CreateUserSchema, signinSchema, RoomSchema } from "@repo/common/types";
 import { prismaClient } from "@repo/db/client";
+import { logger } from "./logger";
 
 const app = express();
 app.use(express.json());
+app.use(logger)
 
-app.post("/signup", async (req, res) => {
+
+
+
+app.post("/signup",logger, async (req, res) => {
   const withOutParsedData = req.body;
   console.log("Without parsed data ", withOutParsedData);
 
@@ -40,7 +45,7 @@ app.post("/signup", async (req, res) => {
     });
   }
 });
-app.post("/signin", async (req, res) => {
+app.post("/signin",logger, async (req, res) => {
   const ParshedData = signinSchema.safeParse(req.body);
   if (!ParshedData.success) {
     res.json({
@@ -84,22 +89,26 @@ app.post("/signin", async (req, res) => {
 
 
 
-app.post("/room",middleware , async (req, res) => {
+app.post("/room",logger,middleware , async (req:Request, res: Response) => {
   const parshedData = RoomSchema.safeParse(req.body);
+  console.log("Parse",parshedData)
   if (!parshedData.success) {
-    res.json({
+    res.status(400).json({
       message: "Incorrect Input",
     });
     return;
   }
 // @ts-ignore
   const userId = req.userId;
+  console.log("USER",userId)
  try{
     const room = await prismaClient.room.create({
     
     data :{
         slug:parshedData.data.roomName,
-        admin:userId
+        adminId:userId,
+
+
     }
    })
    
@@ -107,7 +116,8 @@ app.post("/room",middleware , async (req, res) => {
     roomId: room.id
   });
  }
- catch(error){
+ catch(error: unknown){
+  console.log(error instanceof Error? error.message: "Unknown")
     res.status(411).json({
       message:"Room already exist with this name"
     })

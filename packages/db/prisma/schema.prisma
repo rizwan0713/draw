@@ -27,7 +27,7 @@ model Room {
   slug String @unique
   adminId String
   admin User @relation(fields: [adminId],references: [id])
-  chats Chat[]
+  chats Chat[] 
 }
 
 model Chat{
