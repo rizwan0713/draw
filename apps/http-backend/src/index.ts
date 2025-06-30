@@ -1,17 +1,20 @@
 
 import express from "express";
 import jwt from "jsonwebtoken"
-import { JWT_SECRET } from "@repo/backend-common/config";
+import  {JWT_SECRET}  from "@repo/backend-common/config";
 import { middleware } from "./middleware";
-import {CreateUserSchema ,signupSchema , RoomSchema} from "@repo/common/types"
-import {prismaClient} from "@repo/db/client"
-import { User } from "../../../packages/db/src/generated/prisma";
+import {CreateUserSchema ,signupSchema , RoomSchema} from "@repo/common/types";
+import {prismaClient} from "@repo/db/client";
+
 
 
 const app = express();
 
 app.post("/signup" , async (req,res) => {
 
+
+    const withOutParsedData = req.body;
+    console.log( "Without parsed data ",withOutParsedData)
     const parsedData = CreateUserSchema.safeParse(req.body);
     if(!parsedData.success){
          res.json({
@@ -24,10 +27,10 @@ app.post("/signup" , async (req,res) => {
     })
 
    const user = await prismaClient.user.create({
-  data:{
+  data: {
     email:parsedData.data?.username,
     password:parsedData.data?.password,
-    username:parsedData.data?.name
+    name:parsedData.data?.name
 
   }
    })
