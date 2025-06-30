@@ -13,8 +13,8 @@ datasource db {
 
 model User {
   id String @id @default(uuid())
-  name String
-  email String
+  username String
+  email String  @unique
   password String
   photo String?
   room Room[]
@@ -24,7 +24,7 @@ model User {
 model Room {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
-  slug Int @unique
+  slug String @unique
   adminId String
   admin User @relation(fields: [adminId],references: [id])
   chats Chat[]
