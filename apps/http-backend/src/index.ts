@@ -84,11 +84,6 @@ app.post("/signin",logger, async (req, res) => {
 
 
 
-
-
-
-
-
 app.post("/room",logger,middleware , async (req:Request, res: Response) => {
   const parshedData = RoomSchema.safeParse(req.body);
   console.log("Parse",parshedData)
