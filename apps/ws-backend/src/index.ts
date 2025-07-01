@@ -58,7 +58,7 @@ wss.on("connection", function connection(ws, request) {
         return;
       }
 
-      user.rooms = user?.rooms.filter(x => x === parsedData.room);
+      user.rooms = user?.rooms.filter(room => room !== parsedData.roomId);
     }
 
     if (parsedData.type === 'chat') {
