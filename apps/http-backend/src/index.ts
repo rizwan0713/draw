@@ -136,4 +136,18 @@ res.json({
 })
  })
 
+ app.get("/room/:slug",async (req,res) => {
+
+  const slug  = req.params.slug;
+  const roomId = await prismaClient.room.findFirst({
+    where:{
+      slug
+    }
+  })
+  res.json({
+    roomId
+  })
+
+ })
+
 app.listen(3001);
