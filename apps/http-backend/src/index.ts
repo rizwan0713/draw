@@ -8,12 +8,9 @@ import { logger } from "./logger";
 
 const app = express();
 app.use(express.json());
-app.use(logger)
+app.use(logger);
 
-
-
-
-app.post("/signup",logger, async (req, res) => {
+app.post("/signup", logger, async (req, res) => {
   const withOutParsedData = req.body;
   console.log("Without parsed data ", withOutParsedData);
 
@@ -45,7 +42,7 @@ app.post("/signup",logger, async (req, res) => {
     });
   }
 });
-app.post("/signin",logger, async (req, res) => {
+app.post("/signin", logger, async (req, res) => {
   const ParshedData = signinSchema.safeParse(req.body);
   if (!ParshedData.success) {
     res.json({
@@ -62,14 +59,12 @@ app.post("/signin",logger, async (req, res) => {
     },
   });
 
-  if(!user){
+  if (!user) {
     res.status(403).json({
-        message:"Not authorized"
-    })
+      message: "Not authorized",
+    });
     return;
   }
-
-
 
   const token = jwt.sign(
     {
@@ -81,73 +76,67 @@ app.post("/signin",logger, async (req, res) => {
   res.json({ token });
 });
 
-
-
-
-app.post("/room",logger,middleware , async (req:Request, res: Response) => {
+app.post("/room", logger, middleware, async (req: Request, res: Response) => {
   const parshedData = RoomSchema.safeParse(req.body);
-  console.log("Parse",parshedData)
+  console.log("Parse", parshedData);
   if (!parshedData.success) {
     res.status(400).json({
       message: "Incorrect Input",
     });
     return;
   }
-// @ts-ignore
+  // @ts-ignore
   const userId = req.userId;
-  console.log("USER",userId)
- try{
+  console.log("USER", userId);
+  try {
     const room = await prismaClient.room.create({
-    
-    data :{
-        slug:parshedData.data.roomName,
-        adminId:userId,
+      data: {
+        slug: parshedData.data.roomName,
+        adminId: userId,
+      },
+    });
 
-
-    }
-   })
-   
-  res.json({
-    roomId: room.id
-  });
- }
- catch(error: unknown){
-  console.log(error instanceof Error? error.message: "Unknown")
+    res.json({
+      roomId: room.id,
+    });
+  } catch (error: unknown) {
+    console.log(error instanceof Error ? error.message : "Unknown");
     res.status(411).json({
-      message:"Room already exist with this name"
-    })
- }
+      message: "Room already exist with this name",
+    });
+  }
 });
 
+app.get("/chats/:roomId", async (req, res) => {
+  try {
+    const roomId = Number(req.params.roomId);
+    const messages = await prismaClient.chat.findMany({
+      where: {
+        roomId: roomId,
+      },
+      orderBy: {
+        id: "desc",
+      },
+      take: 50,
+    });
+    res.json({
+      messages,
+    });
+  } catch (e) {res.json({
+    message:[]
+  })}
+});
 
- app.get("/chats/:roomId", async (req,res) => {
-  const roomId = Number(req.params.roomId);
-  const messages = await prismaClient.chat.findMany({
-    where:{
-      roomId:roomId
-    },
-    orderBy:{
-      id:"desc"
-    },
-    take:50 
-  })
-res.json({
-  messages
-})
- })
-
- app.get("/room/:slug",async (req,res) => {
-
-  const slug  = req.params.slug;
+app.get("/room/:slug", async (req, res) => {
+  const slug = req.params.slug;
   const roomId = await prismaClient.room.findFirst({
-    where:{
-      slug
-    }
-  })
+    where: {
+      slug,
+    },
+  });
   res.json({
-    roomId
-  })
-
- })
+    roomId,
+  });
+});
 
 app.listen(3001);
