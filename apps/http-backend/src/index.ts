@@ -5,9 +5,11 @@ import { middleware } from "./middleware";
 import { CreateUserSchema, signinSchema, RoomSchema } from "@repo/common/types";
 import { prismaClient } from "@repo/db/client";
 import { logger } from "./logger";
+import  cors from "cors"
 
 const app = express();
 app.use(express.json());
+app.use(cors())
 app.use(logger);
 
 app.post("/signup", logger, async (req, res) => {
