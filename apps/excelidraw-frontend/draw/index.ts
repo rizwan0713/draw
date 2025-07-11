@@ -29,7 +29,7 @@ type Shape =
     const message = JSON.parse(event.data)
     if(message.type === "chat"){
         const parshedShape = JSON.parse(message.message)
-        existingShapes.push(parshedShape)
+        existingShapes.push(parshedShape.shape)
         clearCanvas(existingShapes,canvas,ctx)
 
 
@@ -117,7 +117,7 @@ async function getExistingShapes(roomId: string) {
   const messages = res.data.messages;
   const shapes = messages.map((x: { message: string }) => {
     const messageData = JSON.parse(x.message);
-    return messageData;
+    return messageData.shape;
   });
   return shapes;
 }

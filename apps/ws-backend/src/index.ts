@@ -53,8 +53,14 @@ console.log("ehree1");
   });
 
   ws.on("message",async function message(data) {
-    const parsedData = JSON.parse(data as unknown as string);  //  data =  {type:"join-room , roomId:1"}
+    let parsedData;
+    // const parsedData = JSON.parse(data as unknown as string);  //  data =  {type:"join-room , roomId:1"}
+    if(typeof data !== "string"){
+      parsedData = JSON.parse(data.toString())
+    }else{
+      parsedData = JSON.parse(data)
 
+    }
     if (parsedData.type === "join-room") {
       const user = users.find(x => x.ws === ws);
       user?.rooms.push(parsedData.roomId);
@@ -76,7 +82,7 @@ console.log("ehree1");
 
       await prismaClient.chat.create({
         data:{
-          roomId,
+          roomId:Number(roomId),
           message,
           userId
         }
