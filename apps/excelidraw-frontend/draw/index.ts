@@ -59,7 +59,8 @@ clearCanvas(existingShapes,canvas,ctx)
     const width = e.clientX - startX;
     const height = e.clientY - startY;
     const shape :Shape = {
-      type: "rect",
+      //@ts-ignore
+      type: window.selectedTool,
       x: startX,
       y: startY,
       width: width,
@@ -90,7 +91,20 @@ clearCanvas(existingShapes,canvas,ctx)
       clearCanvas(existingShapes, canvas, ctx);
 
       ctx.strokeStyle = "white";
+      //@ts-ignore
+      const selectedTool = window.selectedTool
+      if(selectedTool === "rect"){
       ctx.strokeRect(startX, startY, width, height);
+    
+      }else if (selectedTool === "circle"){
+        const centerX = startX + width / 2;
+        const centerY = startY + height / 2;
+        const radius = Math.max(width,height) / 2;
+        ctx.beginPath();
+        ctx.arc(centerX,centerY , radius , 0, Math.PI * 2 );
+        ctx.stroke();
+        ctx.closePath()
+      }
     }
   });
 }
@@ -108,6 +122,16 @@ function clearCanvas(
     if (shape.type === "rect") {
       ctx.strokeStyle = "white";
       ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+    }
+    else if (shape.type === "circle"){
+       const centerX = startX + width / 2;
+        const centerY = startY + height / 2;
+        const radius = Math.max(width,height) / 2;
+        ctx.beginPath();
+        ctx.arc(centerX,centerY , radius , 0, Math.PI * 2 );
+        ctx.stroke();
+        ctx.closePath()
+
     }
   });
 }
