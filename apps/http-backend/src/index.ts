@@ -44,6 +44,7 @@ app.post("/signup", logger, async (req, res) => {
     });
   }
 });
+
 app.post("/signin", logger, async (req, res) => {
   const ParshedData = signinSchema.safeParse(req.body);
   if (!ParshedData.success) {
@@ -119,7 +120,7 @@ app.get("/chats/:roomId", async (req, res) => {
       orderBy: {
         id: "desc",
       },
-      take: 50,
+      take: 1000,
     });
     res.json({
       messages,
@@ -144,4 +145,4 @@ app.get("/room/:slug", async (req, res) => {
   });
 });
 
-app.listen(3001);
+app.listen(5001);

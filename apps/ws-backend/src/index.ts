@@ -23,6 +23,8 @@ function checkUser(token: string): string | null {
   if (!decoded || !decoded.userId) {
     return null;
   }
+  alert("console.log here i am in ws in dex")
+  console.log("here i am in ws in dex")
   return decoded.userId;
   }
   catch(e){

@@ -1,7 +1,7 @@
 "use client"
 
 import { WS_URL } from "@/config";
-import { initDraw } from "@/draw";
+// import { initDraw } from "@/draw";
 import { useEffect, useRef, useState } from "react";
 import { Canvas } from "./Canvas";
 
@@ -31,7 +31,7 @@ if(!socket){
 }
 
     return <div>
-        <h1>this is canvas</h1>
+   
         <Canvas roomId ={roomId} socket={socket}></Canvas>
         
     </div>
