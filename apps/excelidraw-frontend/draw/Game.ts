@@ -136,6 +136,9 @@ export class Game {
     }
 
     this.existingShapes.push(shape);
+    if (this.socket.readyState === WebSocket.OPEN) {
+    console.log("WEBSOCKET IS IN READY STATE OPEN")
+    }
 
     if (this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(
