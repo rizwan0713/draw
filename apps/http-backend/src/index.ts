@@ -80,6 +80,8 @@ app.post("/signin", logger, async (req, res) => {
 });
 
 app.post("/room", logger, middleware, async (req: Request, res: Response) => {
+  console.log("yahan hun mein")
+
   const parshedData = RoomSchema.safeParse(req.body);
   console.log("Parse", parshedData);
   if (!parshedData.success) {

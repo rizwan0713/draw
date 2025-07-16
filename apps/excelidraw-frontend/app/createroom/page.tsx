@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
@@ -9,7 +9,8 @@ import { HTTP_BACKEND } from "@/config";
 
 export default function CreateRoomPage() {
   const router = useRouter();
-
+  const [errors, setErrors] = useState("");
+  const roomNameRef = useRef<HTMLInputElement>(null);
   const [isCheckingAuth,setIsCheckingAuth]= useState(true)
 
   useEffect(() => {
@@ -27,17 +28,20 @@ export default function CreateRoomPage() {
     return null; // Don't render anything while checking
   }
 
-  const [error, setError] = useState("");
-  const roomNameRef = useRef<HTMLInputElement>(null);
+
 
   const handleCreateRoom = async () => {
+         const token = localStorage.getItem("token");
+
+        // console.log("token:",token)
+        // alert(token)
+
     const roomName = roomNameRef.current?.value.trim();
-     const token = localStorage.getItem("token");
     if (!roomName) {
-      setError("Room name cannot be empty");
+      setErrors("Room name cannot be empty");
       return;
     }
-
+    console.log("token:",token)
     try {
       const res = await axios.post(
         `${HTTP_BACKEND}/room`,
@@ -57,7 +61,7 @@ export default function CreateRoomPage() {
       // Navigate to room page (replace with your actual route)
       router.push(`/room/${roomId}`);
     } catch (err: any) {
-      setError(
+      setErrors(
         err?.response?.data?.message || "Failed to create room. Try another name."
       );
     }
@@ -72,10 +76,10 @@ export default function CreateRoomPage() {
           type="text"
           ref={roomNameRef}
           placeholder="Enter room name"
-          className="w-full border px-3 py-2 rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full border placeholder:text-gray-300 px-3 py-2 rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {errors && <p className="text-sm text-red-500">{errors}</p>}
 
         <button
           className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
