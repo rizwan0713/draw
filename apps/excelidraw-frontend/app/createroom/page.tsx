@@ -58,7 +58,7 @@ export default function CreateRoomPage() {
       const { roomId } = res.data;
 
       // Navigate to room page (replace with your actual route)
-      router.push(`/room/${roomId}`);
+      router.push(`/canvas/${roomId}`);
     } catch (err: any) {
       setErrors(
         err?.response?.data?.message ||
