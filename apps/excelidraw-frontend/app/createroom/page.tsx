@@ -1,20 +1,17 @@
-"use client"
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { HTTP_BACKEND } from "@/config";
 
-
-
 export default function CreateRoomPage() {
   const router = useRouter();
   const [errors, setErrors] = useState("");
   const roomNameRef = useRef<HTMLInputElement>(null);
-  const [isCheckingAuth,setIsCheckingAuth]= useState(true)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -28,31 +25,33 @@ export default function CreateRoomPage() {
     return null; // Don't render anything while checking
   }
 
-
-
   const handleCreateRoom = async () => {
-         const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-        // console.log("token:",token)
-        // alert(token)
+    if (!token) {
+      // No token means redirect immediately
+      router.push("/sign-in");
+      return;
+    }
 
     const roomName = roomNameRef.current?.value.trim();
     if (!roomName) {
       setErrors("Room name cannot be empty");
       return;
     }
-    console.log("token:",token)
+    console.log("token:", token);
     try {
       const res = await axios.post(
         `${HTTP_BACKEND}/room`,
         {
           roomName,
+          
         },
         {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       console.log("Room Created:", res.data);
@@ -62,7 +61,8 @@ export default function CreateRoomPage() {
       router.push(`/room/${roomId}`);
     } catch (err: any) {
       setErrors(
-        err?.response?.data?.message || "Failed to create room. Try another name."
+        err?.response?.data?.message ||
+          "Failed to create room. Try another name."
       );
     }
   };
