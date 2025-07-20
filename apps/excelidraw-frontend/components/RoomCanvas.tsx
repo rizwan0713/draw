@@ -11,7 +11,12 @@ export function RoomCanvas({roomId}: {roomId :string}){
 
 
     useEffect(() => {
-       const ws = new WebSocket(WS_URL)
+       
+        const token = localStorage.getItem("token");
+         if(!token){
+            return
+        }
+       const ws = new WebSocket(`${WS_URL}?token=${token}`)
 
        ws.onopen = () => {
         setSocket(ws);;

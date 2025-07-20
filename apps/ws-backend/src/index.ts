@@ -13,36 +13,46 @@ interface User {
 
 const users: User[] = [];
 console.log("ehree");
-function checkUser(token: string): string | null {
+async function checkUser(token: string) {
+  console.log("OKAY CHECK ")
   try{
-    const decoded = jwt.verify(token, JWT_SECRET);
+    console.log("CHECK USER")
+    const decoded = await jwt.verify(token, JWT_SECRET);
+    console.log("DECODED",decoded)
   if (typeof decoded === "string") {
+    console.log("STRIng RETURN")
     return null;
   }
-
+  
   if (!decoded || !decoded.userId) {
+    console.log("Decode RETURN")
     return null;
   }
-  alert("console.log here i am in ws in dex")
   console.log("here i am in ws in dex")
+  console.log("Decoded",decoded)
   return decoded.userId;
-  }
-  catch(e){
-    return null
+}
+catch(e){
+  console.log("Error RETURN")
+  return null
   }
   return null
 }
 
-wss.on("connection", function connection(ws, request) {
-
+wss.on("connection", async function connection(ws, request) {
+console.log("CONNECTION OPEN MERE BHAI")
   const url = request.url;
+  console.log(url)
   if (!url) {
     return;
   }
   const queryParams = new URLSearchParams(url.split("?")[1]);
+  console.log("QUERY",queryParams)
   const token = queryParams.get("token") ?? "";
-
-  const userId = checkUser(token);
+  const roomId = queryParams.get("roomId")?? "";
+console.log("token", token)
+  const userId = await checkUser(token);
+  console.log("USERID", userId)
   if (!userId) {
     ws.close();
     return null;
@@ -50,7 +60,7 @@ wss.on("connection", function connection(ws, request) {
 console.log("ehree1");
   users.push({
     userId,
-    rooms: [],
+    rooms: roomId ? [roomId] : [],
     ws
   });
 
@@ -91,7 +101,11 @@ console.log("ehree1");
       })
 
       users.forEach((user) => {
+        console.log("FOREEACH")
+        console.log("USER MERA",user," and ",user.rooms.includes(roomId))
         if (user.rooms.includes(roomId)) {
+
+          console.log("HELLO CLIENT")
           user.ws.send(JSON.stringify({
             type: "chat",
             message: message,

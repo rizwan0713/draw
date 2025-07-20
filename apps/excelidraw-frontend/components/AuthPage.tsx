@@ -14,6 +14,8 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
   const passwordRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async () => {
+
+    console.log("HELLO Bhai")
     const username = usernameRef.current?.value;
     const email = emailRef.current?.value;
     const password = passwordRef.current?.value;
@@ -21,11 +23,12 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
     try {
       if (isSignin) {
         // Sign in
+        console.log("STATUS")
         const res = await axios.post(`${HTTP_BACKEND}/signin`, {
           email,
           password,
         });
-
+console.log("STATUS",res.status)
            const token = res.data.token;
       if (token) {
         // Save token to localStorage
@@ -33,9 +36,10 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
         console.log("Sign in success:", res.data);
 
         // Redirect to dashboard or home
-        router.push("/createroom");
+        router.push("join-room");
       } else {
         // Sign up
+        console.log("HELLO Bhai rizu")
         const res = await axios.post(`${HTTP_BACKEND}/signup`, {
           username,
           email,
@@ -46,7 +50,18 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
         // Redirect to sign-in after successful registration
         router.push("/signin");
       }
-    } 
+    } else{
+      console.log("SIGN UP")
+      console.log(username, email, password)
+       const res = await axios.post(`${HTTP_BACKEND}/signup`, {
+          username,
+          email,
+          password,
+        });
+        console.log(res.data)
+         router.push("/signin");
+
+    }
     }
     catch (error) {
       console.error("Auth error:", error);

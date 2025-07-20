@@ -1,40 +1,43 @@
 
-generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
-}
+  generator client {
+    provider = "prisma-client-js"
+    output   = "../src/generated/prisma"
+  }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+  datasource db {
+    provider = "postgresql"
+    url      = "postgresql://neondb_owner:npg_Q8SIck7aGWmz@ep-blue-bread-a5357o6u-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require"
+  }
 
 
 
-model User {
-  id String @id @default(uuid())
-  username String
-  email String  @unique
-  password String
-  photo String?
-  room Room[]
-  chat Chat[]
-}
+  model User {
+    id String @id @default(uuid())
+    username String
+    email String  @unique
+    password String
+    photo String?
+    chat Chat[]
+    rooms    Room[]   @relation("RoomParticipants")
+    ownedRooms Room[] @relation("RoomOwner")
+  }
 
-model Room {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  slug String @unique
-  adminId String
-  admin User @relation(fields: [adminId],references: [id])
-  chats Chat[] 
-}
+  model Room {
+    id Int @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    slug String @unique
+    adminId String
+    admin User @relation("RoomOwner",fields: [adminId],references: [id])
+    user  User[]@relation("RoomParticipants")
+    chats Chat[] 
+    
+  }
 
-model Chat{
-  id Int @id @default(autoincrement())
-  message String
-  userId String
-  roomId Int
-  user User @relation(fields: [userId],references: [id])
-  room Room @relation(fields: [roomId],references: [id])
-}
+  model Chat{
+    id Int @id @default(autoincrement())
+    message String
+    userId String
+    roomId Int
+    user User @relation(fields: [userId],references: [id])
+    room Room @relation(fields: [roomId],references: [id])
+  }

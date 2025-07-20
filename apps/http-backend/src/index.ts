@@ -9,7 +9,10 @@ import  cors from "cors"
 
 const app = express();
 app.use(express.json());
-app.use(cors())
+app.use(cors({
+  origin: "http://localhost:3000", // ✅ specific origin, NOT "*"
+  credentials: true, // ✅ allow cookies, tokens, etc.
+}))
 app.use(logger);
 
 app.post("/signup", logger, async (req, res) => {
@@ -35,6 +38,7 @@ app.post("/signup", logger, async (req, res) => {
         username: parsedData.data?.username,
       },
     });
+    console.log("PP",user)
     res.json({
       userId: user.id,
     });
@@ -66,7 +70,7 @@ app.post("/signin", logger, async (req, res) => {
     res.status(403).json({
       message: "Not authorized",
     });
-    return;
+  
   }
 
   const token = jwt.sign(
@@ -82,34 +86,30 @@ app.post("/signin", logger, async (req, res) => {
 app.post("/room", logger, middleware, async (req: Request, res: Response) => {
   console.log("yahan hun mein")
 
-  const parshedData = RoomSchema.safeParse(req.body);
-  console.log("Parse", parshedData);
-  if (!parshedData.success) {
-    res.status(400).json({
-      message: "Incorrect Input",
-    });
-    return;
+const parsedData = RoomSchema.safeParse(req.body);
+  if (!parsedData.success) {
+   res.status(400).json({ message: "Incorrect Input" });
   }
-  // @ts-ignore
-  const userId = req.userId;
-  console.log("USER", userId);
+
+  const userId = (req as any).userId;
+
   try {
     const room = await prismaClient.room.create({
       data: {
-        slug: parshedData.data.roomName,
+        slug: parsedData.data?.roomName!,
         adminId: userId,
+        user: {
+          connect: { id: userId }, // Add admin to participants too
+        },
       },
     });
 
-    res.json({
-      roomId: room.id,
-    });
-  } catch (error: unknown) {
-    console.log(error instanceof Error ? error.message : "Unknown");
-    res.status(411).json({
-      message: "Room already exist with this name",
-    });
+    res.json({ roomId: room.id });
+  } catch (error: any) {
+    console.error("Create room error:", error.message);
+    res.status(411).json({ message: "Room already exists with this name" });
   }
+
 });
 
 app.get("/chats/:roomId", async (req, res) => {
@@ -132,6 +132,28 @@ app.get("/chats/:roomId", async (req, res) => {
   })}
 });
 
+app.post("/join",logger, middleware,async (req, res) => {
+  const { roomId } = req.body;
+  const userId = (req as any).userId;
+
+  try {
+    // Add user to room participants
+    await prismaClient.room.update({
+      where: { id: parseInt(roomId) },
+      data: {
+        user: {
+          connect: { id: userId },
+        },
+      },
+    });
+
+    res.json({ success: true, message: "Joined room successfully" });
+  } catch (error: any) {
+    console.error("Join room error:", error.message);
+    res.status(400).json({ success: false, message: "Failed to join room" });
+  }
+})
+
 app.get("/room/:slug", async (req, res) => {
   alert("here")
   const slug = req.params.slug;
@@ -139,6 +161,10 @@ app.get("/room/:slug", async (req, res) => {
     where: {
       slug,
     },
+    include: {
+        user: true,
+        admin: true,
+      },
   });
 
   
@@ -147,4 +173,4 @@ app.get("/room/:slug", async (req, res) => {
   });
 });
 
-app.listen(5001);
+app.listen(8080);

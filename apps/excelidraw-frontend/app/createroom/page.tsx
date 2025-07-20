@@ -39,7 +39,7 @@ export default function CreateRoomPage() {
       setErrors("Room name cannot be empty");
       return;
     }
-    console.log("token:", token);
+    // console.log("token:", token);
     try {
       const res = await axios.post(
         `${HTTP_BACKEND}/room`,
